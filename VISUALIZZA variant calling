@@ -1,0 +1,163 @@
+VISUALIZZA
+Numero delle varianti (conta) e
+percentuale in base alla
+conseguenza biologica:
+indicare le prime 5
+
+Apri il terminale e digita:
+
+bash
+Copia
+Modifica
+# Estrai tutte le varianti con la loro conseguenza biologica
+grep -v "#" results_ann.vcf | cut -f 8 | sed 's/;/\n/g' | grep "ANN=" | cut -d '|' -f 2 | sort | uniq -c | sort -nr | head -5
+🔍 Spiegazione comando:
+
+grep -v "#" → Esclude le righe di intestazione del file VCF
+cut -f 8 → Estrae la colonna INFO
+sed 's/;/\n/g' → Divide i campi separati da ; su più righe
+grep "ANN=" → Filtra solo le righe con annotazioni ANN
+cut -d '|' -f 2 → Estrae la conseguenza biologica della variante
+sort | uniq -c → Conta il numero di varianti per ciascuna conseguenza
+sort -nr → Ordina le conseguenze più frequenti
+head -5 → Mostra solo le prime 5 più frequenti
+
+Per calcolare la percentuale delle prime 5 conseguenze, usa:
+
+bash
+Copia
+Modifica
+# Conta il totale delle varianti annotate
+TOTAL_VARIANTS=$(grep -v "#" results_ann.vcf | wc -l)
+
+# Conta e calcola la percentuale delle prime 5 conseguenze
+grep -v "#" results_ann.vcf | cut -f 8 | sed 's/;/\n/g' | grep "ANN=" | cut -d '|' -f 2 | sort | uniq -c | sort -nr | head -5 |
+
+VISUALIZZA
+
+Tabella delle varianti
+candidate, in cui indicare:
+posizione, gene (simbolo),
+conseguenza biologica,
+interpretazione clinvar e stato
+di constraint su gnomAD
+
+Apri il terminale e digita:
+
+bash
+Copia
+Modifica
+SnpSift extractFields \
+-s "," -e "." \
+results_ann.vcf \
+"CHROM" "POS" "ID" "REF" "ALT" "ANN[0].GENE" "ANN[0].EFFECT" "CLNSIG" "gnomAD_AF"
+
+SnpSift extractFields → Estrae campi specifici dal file VCF
+results_ann.vcf → File di input contenente le annotazioni delle varianti
+CHROM e POS → Indicano la posizione della variante
+ID → Nome della variante (es. rsID se presente)
+REF e ALT → Alleli di riferimento e alternativo
+ANN[0].GENE → Nome del gene associato
+ANN[0].EFFECT → Conseguenza biologica della variante (es. missense_variant, stop_gained)
+CLNSIG → Interpretazione clinica della variante da ClinVar
+gnomAD_AF → Frequenza della variante nella popolazione generale su gnomAD
+
+Se vuoi salvare la tabella in un file varianti_candidate.csv, usa:
+
+bash
+Copia
+Modifica
+SnpSift extractFields \
+-s "," -e "." \
+results_ann.vcf \
+"CHROM" "POS" "ID" "REF" "ALT" "ANN[0].GENE" "ANN[0].EFFECT" "CLNSIG" "gnomAD_AF" > varianti_candidat
+
+VISUALIZZA
+Conclusione dell’analisi:
+indicare la variante causale
+della patologia (cromosoma,
+posizione, alleli, gene)
+
+Devi cercare varianti che abbiano una alta probabilità di essere causali, ad esempio:
+Varianti con conseguenze biologiche gravi (come frameshift_variant, start_lost, stop_gained).
+Varianti che coinvolgono geni noti per essere associati alla patologia in esame.
+Varianti con stato di constraint significativo su gnomAD (indicano varianti rare, che potrebbero essere patogeniche).
+Varianti ad alta probabilità di patogenicità secondo ClinVar (che ha informazioni cliniche su varianti patogeniche e benigne).
+
+Se la variante è presente in ClinVar, verrà visualizzata una pagina con dettagli sulla variante.
+In questa pagina, puoi trovare:
+Tipo di variante (es. frameshift, missense, etc.).
+Associazione con malattia (se la variante è stata associata a una malattia genetica).
+Interpretazione clinica (questo è il dato più rilevante per sapere se è patogenica o meno).
+5. Interpretazione clinica:
+Nella sezione "Clinical Interpretation", troverai informazioni su come la variante è stata classificata:
+Patogenica: Se la variante è associata alla malattia e se è stata ritenuta causale.
+Benigna: Se la variante non è associata alla malattia.
+Varianti di significato incerto: Se non è chiaro se la variante sia patogenica o no.
+La classificazione delle varianti su ClinVar è solitamente fatta da esperti in genetica clinica e può essere supportata da prove sperimentali e cliniche.
+
+VISUALIZZA
+
+Indicare i fenotipi patologici
+con cui la variante risulta
+associata
+
+Per trovare i fenotipi patologici associati alla variante genetica che stai analizzando su ClinVar, segui questi passaggi:
+
+Accedi alla variante su ClinVar: Vai alla pagina della variante, che puoi trovare cercando il numero rs (ad esempio, rs762466544) su ClinVar.
+
+Trova la sezione "Conditions": Una volta aperta la pagina della variante, cerca la sezione denominata "Conditions". In questa sezione, troverai una lista di condizioni patologiche (fenotipi) con cui la variante è stata associata.
+
+Ogni condizione sarà elencata con un nome descrittivo e, spesso, un codice OMIM (Online Mendelian Inheritance in Man) che identifica la malattia.
+Se la variante è stata associata a più di un fenotipo, saranno tutti elencati.
+Verifica le informazioni: Per ogni condizione, puoi anche trovare informazioni aggiuntive, come:
+
+Il tipo di associazione (ad esempio, causale, probabile).
+La popolazione di riferimento (ad esempio, se è stata osservata in una popolazione specifica).
+Dettagli aggiuntivi sulla malattia e sull'evidenza che supporta l'associazione.
+
+VISUALIZZA
+
+Accedi alla pagina della variante su ClinVar: Vai su ClinVar e cerca la variante genetica che ti interessa. Puoi cercarla utilizzando l'identificativo rs (ad esempio, rs762466544) o cercando il nome del gene.
+
+Trova la sezione "Clinical Significance": Una volta aperta la pagina della variante, cerca la sezione "Clinical Significance". In questa sezione, troverai la classificazione della variante, che generalmente include uno di questi valori:
+
+Pathogenic (Patogenica)
+Likely pathogenic (Probabilmente patogenica)
+Benign (Benigna)
+Likely benign (Probabilmente benigna)
+VUS (Variant of Uncertain Significance - Variante di significato incerto)
+Grado di solidità: Accanto a ciascuna classificazione, troverai anche un grado di solidità che indica quanto è forte la prova che supporta tale classificazione. Questi gradi possono essere:
+
+Conflicting interpretations of pathogenicity (Interpretazioni contrastanti della patogenicità): significa che la variante è stata classificata in modi contrastanti da diversi gruppi.
+Criteria provided, multiple submitters (Criteri forniti, più submitters): la variante è stata valutata da più submitters (come laboratori, clinici, ecc.), ma potrebbero esserci differenze nelle conclusioni.
+Single submitter (Un solo submitter): la variante è stata valutata solo da un submitter.
+L'interpretazione di ciascun livello di solidità è la seguente:
+
+Strong evidence: forte supporto per la classificazione (es. ampie prove cliniche, esperimenti funzionali, ecc.).
+Moderate evidence: prove sufficienti per supportare una classificazione, ma meno robuste rispetto alle evidenze forti.
+Supporting evidence: prove più deboli, ma comunque indicazioni che supportano la classificazione.
+
+VISUALIZZA
+
+Indicare il Ts/Tv ratio della
+chiamata delle varianti
+effettuata
+
+Il Ts/Tv ratio (Transitions/Transversions ratio) è un parametro utilizzato per valutare la qualità delle varianti chiamate in un file VCF (Variant Call Format). Le transizioni (Ts) e le trasversioni (Tv) sono due tipi di mutazioni genetiche:
+
+Transizioni (Ts): quando una purina (A o G) si sostituisce con un'altra purina (A ↔ G), o una pirimidina (C o T) si sostituisce con un'altra pirimidina (C ↔ T).
+Trasversioni (Tv): quando una purina (A o G) si sostituisce con una pirimidina (C o T), o viceversa.
+Il Ts/Tv ratio fornisce un’indicazione della qualità della chiamata delle varianti. In generale, un valore più alto di Ts/Tv (ad esempio, > 2) indica una qualità migliore della chiamata, poiché le transizioni tendono ad essere più comuni e meno soggette a errori rispetto alle trasversioni.
+
+Come calcolare il Ts/Tv ratio:
+Per calcolare il Ts/Tv ratio dalle varianti in un file VCF, puoi utilizzare un comando che analizza le varianti e separa quelle che sono transizioni e trasversioni.
+vcftools --vcf results.vcf --freq --out ts_tv_ratio
+bcftools stats results.vcf | grep "TSTV" 
+Questo comando restituirà il Ts/Tv ratio dal file VCF.
+
+Interpreta il risultato:
+Se il Ts/Tv ratio è maggiore di 2 (ad esempio, 2.5 o 3), la qualità delle varianti chiamate è generalmente buona.
+Se è inferiore a 2, potrebbe indicare una qualità inferiore delle varianti chiamate, con un numero elevato di trasversioni (che potrebbero derivare da errori).
+
+
