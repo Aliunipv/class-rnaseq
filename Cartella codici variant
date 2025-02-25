@@ -1,5 +1,5 @@
 #Aprire codespaces o gitpod, in home gitpod class variant calling fare i seguenti comandi: 
-
+ tar -xvzf alignment.tar.gz 
 
 cd /workspace/class-variantcalling
 mkdir -p dataset_esercitazione_resequencing01       
