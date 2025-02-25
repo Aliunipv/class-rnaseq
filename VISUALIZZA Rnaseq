@@ -2,197 +2,56 @@ VISUALIZZARE
 da questo workflow come si vedono i geni che risultano differenzialmente espressi in modo significativo, la loro pvalue e il log2foldchange? 
 Stampare i primi geni più significativi:
 
-r
-Copia
-Modifica
 head(resOrdered)
+
 Filtrare i geni con padj < 0.05:
 
-r
-Copia
-Modifica
 sig_res <- subset(resOrdered, padj < 0.05)
 head(sig_res)
 Visualizzare i primi 10 geni con il log2FoldChange più alto o basso:
 
-r
-Copia
-Modifica
 sig_res[order(sig_res$log2FoldChange, decreasing = TRUE), ][1:10, ]  # Più espressi in case
 sig_res[order(sig_res$log2FoldChange, decreasing = FALSE), ][1:10, ] # Meno espressi in case
 
 VISUALIZZARE
+Prime 10 categorie presenti
+nell’analisi di enrichment di
+questi risultati
+head(ego@result$Description, 10)
 
-Da questa analisi come si possono vedere le prime 10 categorie presenti nell'analisi di enrichment di questi risultati
-Dall'analisi di enrichment eseguita nel workflow, i risultati sono stati salvati nelle variabili ego (Gene Ontology enrichment) e disgnet (associazione gene-malattia).
-
-Puoi visualizzare le prime 10 categorie così:
-
-1. Gene Ontology (GO) enrichment (ego)
-r
-Copia
-Modifica
-head(ego@result, 10)
-Questo mostra le prime 10 categorie GO arricchite, ordinate per p-value.
-Oppure puoi ordinarle per significatività e selezionare le migliori:
-
-r
-Copia
-Modifica
-ego@result[order(ego@result$p.adjust), ][1:10, ]
-Seleziona le 10 categorie più significative in termini di p.adjust.
-2. Malattie associate ai geni differenzialmente espressi (disgnet)
-r
-Copia
-Modifica
-head(disgnet@result, 10)
-Questo mostra le prime 10 malattie più arricchite secondo DisGeNET.
-Se vuoi ordinarle per significatività:
-
-r
-Copia
-Modifica
-disgnet@result[order(disgnet@result$p.adjust), ][1:10, ]
-
-Grafici utili
-Puoi visualizzare le categorie arricchite con un dotplot:
-
-r
-Copia
-Modifica
-dotplot(ego, showCategory=10)
-Mostra le 10 categorie GO più significative con asse X = GeneRatio (percentuale dei geni DE coinvolti).
-Oppure un network plot per vedere la relazione tra geni e categorie:
-
-r
-Copia
-Modifica
-cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
-
-L'oggetto ego@result contiene i dati dell'enrichment analysis per GO:
-
-r
-Copia
-Modifica
-ego@result[, c("Description", "Count")]
-Description: Nome della categoria biologica (es. "cell division", "immune response").
-Count: Numero di geni che appartengono a quella categoria.
-Per vedere solo le prime 10 categorie:
-
-r
-Copia
-Modifica
-head(ego@result[, c("Description", "Count")], 10)
-
-L'oggetto disgnet@result contiene i dati dell’arricchimento per malattie:
-
-r
-Copia
-Modifica
-disgnet@result[, c("Description", "Count")]
-Description: Nome della malattia associata.
-Count: Numero di geni differenzialmente espressi associati a quella malattia.
-Per vedere le prime 10:
-
-r
-Copia
-Modifica
-head(disgnet@result[, c("Description", "Count")], 10)
-
-Per rappresentare graficamente la rete di connessioni tra categorie e geni:
-
-r
-Copia
-Modifica
-cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
-Mostra un grafo dove:
-I nodi rappresentano le categorie GO arricchite e i geni DE associati.
-Le connessioni indicano quali geni sono coinvolti in ciascuna categoria.
-Se vuoi vedere solo le prime 10 categorie più arricchite, usa:
-
-r
-Copia
-Modifica
-cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)], showCategory=10)
+VISUALIZZARE
+Categorie presenti nel network
+di enrichment e numero di geni
+per ciascuna categoria
+ego_df <- as.data.frame(ego)
+ego_genes <- ego_df[, c("Description", "geneID")]
+print(ego_genes)
+si vede nel penultimo cnetplot
 
 VISUALIZZARE
 come posso vedere la Percentuale della varianza
 spiegata dalle prime due
 componenti principali?
-
-plotPCA(ntd, intgroup=c("condition"))
-Questa funzione è utile per visualizzare la variabilità nei dati di espressione genica tra campioni, ma non mostra direttamente la percentuale di varianza spiegata.
-
-🔹 Per ottenere la varianza spiegata dalle prime due componenti principali, puoi fare così:
-r
-Copia
-Modifica
-pca_data <- prcomp(t(assay(ntd)))
-
-# Calcolare la percentuale di varianza spiegata
-var_explained <- (pca_data$sdev^2) / sum(pca_data$sdev^2) * 100
-
-# Stampare la percentuale della varianza spiegata dalle prime due componenti principali
-cat("PC1 spiega", round(var_explained[1], 2), "% della varianza\n")
-cat("PC2 spiega", round(var_explained[2], 2), "% della varianza\n")
+pca_result <- prcomp(t(assay(ntd)), center = TRUE, scale. = TRUE)
+var_spiegata <- (pca_result$sdev^2 / sum(pca_result$sdev^2)) * 100
+cat("La varianza spiegata da ciascuna delle prime due PCs è la seguente:\n")
+cat("- PC1:", round(var_spiegata[1], 2), "% della varianza;\n")
+cat("- PC2:", round(var_spiegata[2], 2), "% della varianza.\n")
 
 Come interpretare la PCA in RNA-Seq?
 Se PC1 separa chiaramente i campioni "case" dai "control", significa che la principale fonte di variazione nei dati è dovuta alla condizione sperimentale.
 Se PC1 e PC2 insieme spiegano una grande percentuale della varianza (es. > 70%), vuol dire che possiamo descrivere i dati in modo abbastanza accurato con solo queste due componenti.
 Se la varianza spiegata è molto distribuita su più componenti, potrebbe essere necessario esaminare più componenti o usare altre tecniche di clustering.
 
-Se vuoi visualizzare la varianza spiegata da ciascuna componente in un grafico a barre, usa:
-
-r
-Copia
-Modifica
-# Grafico della varianza spiegata per ciascuna componente principale
-barplot(var_explained, names.arg = paste0("PC", 1:length(var_explained)),
-        las=2, col="skyblue", main="Varianza spiegata da ciascuna PC",
-        ylab="Percentuale di varianza spiegata")
 
 VISUALIZZA
-
 Malattie che emergono
 nell’analisi di network genedisease e numero di geni
 associati a ciascuna di esse
 
-Dopo aver eseguito l'enrichment analysis con DisGeNET, puoi estrarre i risultati con:
+si vede con l'ultimo cnetplot
 
-r
-Copia
-Modifica
-# Visualizzare i primi risultati dell’enrichment analysis
-head(summary(disgnet))
-Oppure, se vuoi un output tabellare più chiaro:
 
-r
-Copia
-Modifica
-# Convertire i risultati in un dataframe
-disgnet_results <- as.data.frame(disgnet)
-
-# Selezionare le colonne di interesse: malattia e numero di geni associati
-disgnet_results_selected <- disgnet_results[, c("ID", "Description", "Count")]
-
-# Rinominare le colonne per chiarezza
-colnames(disgnet_results_selected) <- c("Disease_ID", "Disease_Name", "Gene_Count")
-
-# Visualizzare le prime 10 malattie più arricchite
-head(disgnet_results_selected, 10)
-
-Una volta ottenuti i risultati, puoi visualizzare il network con:
-
-r
-Copia
-Modifica
-# Network plot delle malattie con i geni associati
-cnetplot(disgnet, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
-🔹 Cosa mostra questo grafico?
-
-I nodi grandi sono le malattie arricchite.
-I nodi piccoli sono i geni che vi sono associati.
-I colori rappresentano i valori di log2FoldChange per i geni.
 
 VISUALIZZA
 
@@ -201,30 +60,10 @@ evidenza nella heatmap di
 questa analisi e indicazione
 se sono maggiormente
 espressi nei casi o meno
-
-Se vuoi estrarre e stampare i valori di espressione dei geni visualizzati nella heatmap, usa:
-
-r
-Copia
-Modifica
-top_genes <- rownames(dds)[select]
-gene_expression <- assay(ntd)[select,]
-print(gene_expression)
-✔ top_genes contiene i nomi dei geni della heatmap
-✔ gene_expression contiene i valori di espressione normalizzati
-
-Se vuoi vedere la media di espressione per condizione, fai:
-
-r
-Copia
-Modifica
-# Creiamo un dataframe con i valori medi per condizione
-expression_means <- data.frame(
-  Gene = top_genes,
-  Mean_Control = rowMeans(assay(ntd)[select, dds$condition == "control"]),
-  Mean_Case = rowMeans(assay(ntd)[select, dds$condition == "case"])
-)
-
-print(expression_means)
-✔ Se Mean_Case > Mean_Control → il gene è più espresso nei casi.
-✔ Se Mean_Case < Mean_Control → il gene è più espresso nei controlli
+usa la heatmap 
+Tra i 20 geni più espressi messi in evidenza dalla heatmap, 3 riusltano
+particolarmente interessanti:
+- ENSG00000142192;
+- ENSG00000159128;
+- ENSG00000154639.
+Per tutti e tre questi geni l’espressione è maggiore nei casi rispetto ai controlli
