@@ -27,6 +27,12 @@ ego_df <- as.data.frame(ego)
 ego_genes <- ego_df[, c("Description", "geneID")]
 print(ego_genes)
 si vede nel penultimo cnetplot
+Le malattie che emergono nell’analisi di network gene-disease sono le seguenti:
+- Sleep Apnea Syndromes (geni: 351, 6285, 6647, 1525);
+- Infection (geni: 351, 6285, 6647, 1525, 3460);
+- Progressive Neoplastic Disease (geni: 351, 6285, 6647, 1525, 3460);
+- Progressive cGVHD (geni: 351, 6285, 6647, 1525, 3460);
+- Chromosome 21 monosomy (geni: 351, 6285, 6647).
 
 VISUALIZZARE
 come posso vedere la Percentuale della varianza
