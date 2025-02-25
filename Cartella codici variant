@@ -155,6 +155,8 @@ snpEff download -v hg38 -dataDir /workspaces/class-variantcalling/analysis/varia
 ### to execute snpeff we need to contain the memory
 snpEff -Xmx4g ann -dataDir /workspaces/class-variantcalling/analysis/variants/cache -v hg38 results.vcf.gz >results_ann.vcf
 
+ls -lt
+
 
 ### filter variants
 
@@ -175,6 +177,8 @@ SnpSift extractFields \
 -s "," -e "." \
 filtered_variants.vcf \
 "CHROM" "POS" "ID" "REF" "ALT" "GEN[*].GT" ANN[0].GENE ANN[0].EFFECT
+
+ >> variants_for_interpretation.txt DA AGGIUNGERE ULTIMO CODICE
 
 ESERCITAZIONE 1 
 
